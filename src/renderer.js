@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const inputStack = [];
 let inputStackPtr = -1;
+let pathPtr = "./";
 
 function setupDynamicTextarea() {
 	const textarea = document.getElementById('command');
@@ -37,7 +38,7 @@ function setupDynamicTextarea() {
 			e.preventDefault();
 			inputStackPtr = inputStack.length - 1;
 			setHistory(textarea.value);
-			const commandResult = await window.electronAPI.runCliCommand(textarea.value);
+			const commandResult = await handleCommand(textarea.value);
 			setHistory(commandResult, false);
 			textarea.value = '';
 			adjustHeight();
@@ -57,6 +58,27 @@ function setupDynamicTextarea() {
 
 	});
 }
+
+/** @param {string} command */
+/** @returns {Promise<string>} */
+async function handleCommand(command) {
+	console.log(pathPtr);
+	const commandResult = await window.electronAPI.runCliCommand(`cd ${pathPtr} && ${command}`)
+	console.log(commandResult);
+
+	const keyword = command.split(' ')[0];
+	if (keyword === 'cd' && commandResult.split(0, 7) !== "[ERROR]") {
+		const path = command.split(' ')[1];
+		if (path === "~") {
+			pathPtr = "~/";
+		} else {
+			pathPtr += path + "/"
+		}
+	}
+	return commandResult;
+}
+
+
 
 /**
 * @param {string} command

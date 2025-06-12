@@ -32,7 +32,7 @@ function runCliCommand(command) {
 				resolve(Buffer.concat(outputBuffers).toString());
 			} else {
 				const errorBuffer = Buffer.concat(errorBuffers);
-				resolve(errorBuffer.toString());
+				resolve("[ERROR]" + errorBuffer.toString());
 				//reject(new Error(`Command failed with exit code ${code}\n${errorBuffer.toString()}`));
 			}
 		});

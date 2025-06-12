@@ -32,7 +32,6 @@ app.on('window-all-closed', () => {
 
 // Handle CLI command execution
 ipcMain.handle('run-cli-command', async (event, command) => {
-	console.log(event);
 	return await runCliCommand(command);
 });
 
