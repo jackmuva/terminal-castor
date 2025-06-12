@@ -6,6 +6,7 @@ const inputStack = [];
 let inputStackPtr = -1;
 let pathPtr = "./";
 
+/** @returns {void} */
 function setupDynamicTextarea() {
 	const textarea = document.getElementById('command');
 	if (!textarea) return;
@@ -60,11 +61,15 @@ function setupDynamicTextarea() {
 }
 
 /** @param {string} command */
+/** @param {number} [curDepth = 0]*/
+/** @param {string} [maxDepth = 1]*/
 /** @returns {Promise<string>} */
-async function handleCommand(command) {
-	console.log(pathPtr);
+async function handleCommand(command, curDepth = 0, maxDepth = 1) {
+	if (curDepth > maxDepth) {
+		return "AI is stuck";
+	}
+
 	const commandResult = await window.electronAPI.runCliCommand(`cd ${pathPtr} && ${command}`)
-	console.log(commandResult);
 
 	const keyword = command.split(' ')[0];
 	if (keyword === 'cd' && commandResult.split(0, 7) !== "[ERROR]") {
@@ -75,7 +80,22 @@ async function handleCommand(command) {
 			pathPtr += path + "/"
 		}
 	}
-	return commandResult;
+
+	if (commandResult.slice(0, 7) !== "[ERROR]") {
+		return commandResult;
+	} else {
+		const aiResponse = await window.electronAPI.englishToCommand(command);
+		console.log(aiResponse.toString());
+		const aiCommandResult = await handleCommand(aiResponse.command, curDepth + 1, maxDepth);
+
+		const aiExplanation = document.getElementById('ai-explanation');
+
+		aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>*</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${aiResponse.command}</div></div>`;
+
+		aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>^</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${aiResponse.explanation}</div></div>`;
+
+		return aiCommandResult;
+	}
 }
 
 

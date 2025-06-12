@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path');
-const runCliCommand = require('./ai-cli-runner.js');
+const { englishToCommand, runCliCommand } = require('./ai-cli-module.js');
 
 const createWindow = () => {
 	const win = new BrowserWindow({
@@ -34,6 +34,11 @@ app.on('window-all-closed', () => {
 ipcMain.handle('run-cli-command', async (event, command) => {
 	return await runCliCommand(command);
 });
+
+ipcMain.handle('english-to-command', async (event, english) => {
+	return await englishToCommand(english);
+});
+
 
 ipcMain.handle('quit', () => {
 	app.quit()
