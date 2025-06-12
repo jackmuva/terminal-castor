@@ -6,14 +6,25 @@
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
 	<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+	<link href="./output.css" rel="stylesheet">
 	<title>Hello from Electron renderer!</title>
 </head>
 
 <body>
-	<h1>Hello from Electron renderer!</h1>
-	<p>👋</p>
-	<p id="info"></p>
+	<div class="bg-zinc-900 text-neutral-100 w-dvw h-dvh text-sm font-mono flex">
+		<div class="w-1/2 h-full border-r border-teal-200 p-1">
+			<div id="history" class="h-fit"></div>
+			<div class="flex space-x-2">
+				<p>$</p>
+				<input type="text" />
+			</div>
+		</div>
+		<div class="w-1/2 h-full p-1">
+
+		</div>
+	</div>
 </body>
 <script src="./renderer.js"></script>
+<script src="./ai-cli-runner.js"></script>
 
 </html>
