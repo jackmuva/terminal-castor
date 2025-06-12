@@ -39,7 +39,7 @@ function setupDynamicTextarea() {
 			e.preventDefault();
 			inputStackPtr = inputStack.length - 1;
 			setHistory(textarea.value);
-			const commandResult = await handleCommand(textarea.value);
+			const commandResult = await handleCommand(textarea.value, 0, 2);
 			setHistory(commandResult, false);
 			adjustHeight();
 			const terminalDiv = document.getElementById("terminal-div");
@@ -86,19 +86,19 @@ async function handleCommand(command, curDepth = 0, maxDepth = 1) {
 		}
 	}
 
-	console.log(commandResult.slice(0, 7));
-	console.log(commandResult);
 	if (commandResult.slice(0, 7) !== "[ERROR]") {
-		console.log('no error');
 		return commandResult;
 	} else {
 		const aiResponse = await window.electronAPI.englishToCommand(command);
-		console.log(aiResponse.toString());
-		const aiCommandResult = await handleCommand(aiResponse.command, curDepth + 1, maxDepth);
-
+		console.log(aiResponse);
+		let aiCommandResult = ""
 		const aiExplanation = document.getElementById('ai-explanation');
+		if (aiResponse.command) {
+			aiCommandResult = await handleCommand(aiResponse.command, curDepth + 1, maxDepth);
 
-		aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>*</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${aiResponse.command}</div></div>`;
+			aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>*</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${aiResponse.command}</div></div>`;
+		}
+
 
 		aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>^</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${aiResponse.explanation}</div></div>`;
 
