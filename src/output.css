@@ -166,6 +166,9 @@
   .flex {
     display: flex;
   }
+  .hidden {
+    display: none;
+  }
   .h-dvh {
     height: 100dvh;
   }
@@ -193,6 +196,9 @@
   .resize-none {
     resize: none;
   }
+  .flex-col {
+    flex-direction: column;
+  }
   .space-x-2 {
     :where(& > :not(:last-child)) {
       --tw-space-x-reverse: 0;
@@ -200,8 +206,8 @@
       margin-inline-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-x-reverse)));
     }
   }
-  .overflow-y-auto {
-    overflow-y: auto;
+  .overflow-hidden {
+    overflow: hidden;
   }
   .border-r {
     border-right-style: var(--tw-border-style);
@@ -235,6 +241,9 @@
   }
   .text-neutral-100 {
     color: var(--color-neutral-100);
+  }
+  .caret-zinc-900 {
+    caret-color: var(--color-zinc-900);
   }
   .outline-none {
     --tw-outline-style: none;
