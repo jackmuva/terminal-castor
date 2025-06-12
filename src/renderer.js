@@ -41,9 +41,11 @@ function setupDynamicTextarea() {
 			setHistory(textarea.value);
 			const commandResult = await handleCommand(textarea.value);
 			setHistory(commandResult, false);
-			textarea.value = '';
 			adjustHeight();
-			window.scrollTo(0, document.body.scrollHeight);
+			const terminalDiv = document.getElementById("terminal-div");
+			terminalDiv.scrollTop = terminalDiv.scrollHeight;
+			const aiDiv = document.getElementById("ai-div");
+			aiDiv.scrollTop = aiDiv.scrollHeight;
 		} else if (e.key === 'ArrowUp') {
 			console.log(inputStack, inputStackPtr);
 			e.preventDefault();
@@ -65,6 +67,9 @@ function setupDynamicTextarea() {
 /** @param {string} [maxDepth = 1]*/
 /** @returns {Promise<string>} */
 async function handleCommand(command, curDepth = 0, maxDepth = 1) {
+	const textarea = document.getElementById('command');
+	textarea.value = '';
+
 	if (curDepth > maxDepth) {
 		return "AI is stuck";
 	}
@@ -72,7 +77,7 @@ async function handleCommand(command, curDepth = 0, maxDepth = 1) {
 	const commandResult = await window.electronAPI.runCliCommand(`cd ${pathPtr} && ${command}`)
 
 	const keyword = command.split(' ')[0];
-	if (keyword === 'cd' && commandResult.split(0, 7) !== "[ERROR]") {
+	if (keyword === 'cd' && commandResult.slice(0, 7) !== "[ERROR]") {
 		const path = command.split(' ')[1];
 		if (path === "~") {
 			pathPtr = "~/";
@@ -81,7 +86,10 @@ async function handleCommand(command, curDepth = 0, maxDepth = 1) {
 		}
 	}
 
+	console.log(commandResult.slice(0, 7));
+	console.log(commandResult);
 	if (commandResult.slice(0, 7) !== "[ERROR]") {
+		console.log('no error');
 		return commandResult;
 	} else {
 		const aiResponse = await window.electronAPI.englishToCommand(command);

@@ -12,9 +12,11 @@ function englishToCommand(english) {
 				system_instruction: {
 					parts: [{
 						text: `You are an assistant that translates user commands to macOS terminal commands. 
-						Responses must be in a stringified json format: {command: <macOS terminal command>, 
+						You have 2 rules:
+						1) Responses must be in a stringified json format: {command: <macOS terminal command>, 
 						explanation: <explanation for how the macOS terminal command works>}
-						so it can be easily parsed with JSON.parse()`
+						so it can be easily parsed with JSON.parse()
+						2) Do not delete files or directories, or use any rm command`
 					}]
 				},
 				contents: [{

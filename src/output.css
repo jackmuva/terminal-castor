@@ -163,6 +163,9 @@
   }
 }
 @layer utilities {
+  .contents {
+    display: contents;
+  }
   .flex {
     display: flex;
   }
@@ -172,8 +175,8 @@
   .h-fit {
     height: fit-content;
   }
-  .h-full {
-    height: 100%;
+  .h-screen {
+    height: 100vh;
   }
   .min-h-6 {
     min-height: calc(var(--spacing) * 6);
@@ -199,6 +202,13 @@
   .flex-col {
     flex-direction: column;
   }
+  .space-y-2 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+    }
+  }
   .space-x-2 {
     :where(& > :not(:last-child)) {
       --tw-space-x-reverse: 0;
@@ -208,6 +218,9 @@
   }
   .overflow-hidden {
     overflow: hidden;
+  }
+  .overflow-y-scroll {
+    overflow-y: scroll;
   }
   .border-r {
     border-right-style: var(--tw-border-style);
@@ -250,6 +263,11 @@
     outline-style: none;
   }
 }
+@property --tw-space-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-space-x-reverse {
   syntax: "*";
   inherits: false;
@@ -263,6 +281,7 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
       --tw-border-style: solid;
     }
