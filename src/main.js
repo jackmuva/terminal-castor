@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path');
+const runCliCommand = require('./ai-cli-runner.js');
 
 const createWindow = () => {
 	const win = new BrowserWindow({
@@ -14,7 +15,6 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
-	ipcMain.handle('ping', () => 'pong');
 	createWindow();
 
 	app.on('activate', () => {
@@ -29,3 +29,13 @@ app.on('window-all-closed', () => {
 		app.quit()
 	}
 })
+
+// Handle CLI command execution
+ipcMain.handle('run-cli-command', async (event, command) => {
+	console.log(event);
+	return await runCliCommand(command);
+});
+
+ipcMain.handle('quit', () => {
+	app.quit()
+});

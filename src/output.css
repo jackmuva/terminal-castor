@@ -169,9 +169,6 @@
   .hidden {
     display: none;
   }
-  .h-dvh {
-    height: 100dvh;
-  }
   .h-fit {
     height: fit-content;
   }
@@ -181,14 +178,17 @@
   .min-h-6 {
     min-height: calc(var(--spacing) * 6);
   }
+  .min-h-screen {
+    min-height: 100vh;
+  }
   .w-1\/2 {
     width: calc(1/2 * 100%);
   }
-  .w-dvw {
-    width: 100dvw;
-  }
   .w-full {
     width: 100%;
+  }
+  .w-screen {
+    width: 100vw;
   }
   .max-w-full {
     max-width: 100%;
