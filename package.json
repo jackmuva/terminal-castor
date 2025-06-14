@@ -1,5 +1,5 @@
 {
-  "name": "terminaldotx",
+  "name": "terminal-castor",
   "version": "1.0.0",
   "description": "ai terminal guide",
   "license": "ISC",
@@ -16,7 +16,9 @@
     "jsdoc": "^4.0.4"
   },
   "dependencies": {
+    "@lydell/node-pty": "^1.1.0",
     "@tailwindcss/cli": "^4.1.10",
+    "@xterm/xterm": "^5.5.0",
     "dotenv": "^16.5.0",
     "tailwindcss": "^4.1.10"
   }

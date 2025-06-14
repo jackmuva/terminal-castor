@@ -1,17 +1,36 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path');
-const { englishToCommand, runCliCommand } = require('./ai-cli-module.js');
+const pty = require('@lydell/node-pty');
+const os = require("os");
+var shell = os.platform() === "win32" ? "powershell.exe" : "bash";
 
 const createWindow = () => {
 	const win = new BrowserWindow({
 		width: 800,
 		height: 600,
 		webPreferences: {
-			preload: path.join(__dirname, 'preload.js')
+			preload: path.join(__dirname, 'preload.js'),
+			nodeIntegration: true
 		}
 	})
-
 	win.loadFile('src/index.html')
+
+	const ptyProcess = pty.spawn(shell, [], {
+		name: "xterm-color",
+		cols: 80,
+		rows: 30,
+		cwd: process.env.HOME,
+		env: process.env
+	});
+
+	ptyProcess.on('data', function(data) {
+		win.webContents.send("terminal.incomingData", data);
+		console.log("Data sent");
+	});
+	ipcMain.on("terminal.keystroke", (event, key) => {
+		ptyProcess.write(key);
+	});
+
 }
 
 app.whenReady().then(() => {
@@ -29,16 +48,6 @@ app.on('window-all-closed', () => {
 		app.quit()
 	}
 })
-
-// Handle CLI command execution
-ipcMain.handle('run-cli-command', async (event, command) => {
-	return await runCliCommand(command);
-});
-
-ipcMain.handle('english-to-command', async (event, english) => {
-	return await englishToCommand(english);
-});
-
 
 ipcMain.handle('quit', () => {
 	app.quit()

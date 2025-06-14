@@ -1,7 +1,6 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron/renderer')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-	runCliCommand: (command) => ipcRenderer.invoke('run-cli-command', command),
-	englishToCommand: (english) => ipcRenderer.invoke('english-to-command', english),
-	quit: () => ipcRenderer.invoke('quit'),
+	onUpdateCounter: (callback) => ipcRenderer.on('update-counter', (_event, value) => callback(value)),
+	counterValue: (value) => ipcRenderer.send('counter-value', value)
 })
