@@ -4,9 +4,10 @@
 <head>
 	<meta charset="UTF-8" />
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+	<meta http-equiv="Content-Security-Policy"
+		content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
 	<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-	<link href="./output.css" rel="stylesheet">
+	<link href="./styles/output.css" rel="stylesheet">
 	<link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css">
 	<title>terminal-castor: delete this app when you're ready</title>
 </head>
@@ -24,6 +25,5 @@
 	</div>
 </body>
 <script src="./renderer.js"></script>
-<script src="../node_modules/@term/xterm/lib/xterm.js"></script>
 
 </html>
