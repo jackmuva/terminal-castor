@@ -175,6 +175,9 @@
   .h-screen {
     height: 100vh;
   }
+  .min-h-full {
+    min-height: 100%;
+  }
   .min-h-screen {
     min-height: 100vh;
   }
@@ -189,6 +192,12 @@
   }
   .max-w-full {
     max-width: 100%;
+  }
+  .min-w-full {
+    min-width: 100%;
+  }
+  .resize {
+    resize: both;
   }
   .flex-col {
     flex-direction: column;
