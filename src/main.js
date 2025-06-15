@@ -53,11 +53,12 @@ const isBashError = (line) => {
 	const errorPatterns = [
 		/[^:]+: command not found/,
 		/.*: No such file or directory/,
+		/.*: does not exist/,
 		/.*: syntax error.*/i,
 		/.*: invalid option -- .*/i,
 		/.*: too many arguments/i,
 		/.*: missing operand/i,
-		/.*(failed|error|not found).*/i,
+		/.*(failed|error|not found|not exist).*/i,
 	];
 
 
@@ -87,6 +88,7 @@ const createWindow = () => {
 		if (mainWindow && !mainWindow.isDestroyed()) {
 			if (isBashError(data)) {
 				ptyProcess.pause();
+				//FIX: i'm not sending the original command, just the error
 				englishToCommand(data).then((res) => {
 					ptyProcess.resume();
 					if (res.command) {
