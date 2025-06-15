@@ -1,6 +1,6 @@
 const { Terminal } = require('@xterm/xterm');
 const { FitAddon } = require('@xterm/addon-fit');
-const ipc = require("electron").ipcRenderer;
+const ipcRenderer = require("electron").ipcRenderer;
 const {
 	currentTheme,
 	draculaTheme,
@@ -26,7 +26,7 @@ const fitAndResize = () => {
 	const dims = fitAddon.proposeDimensions();
 	if (dims) {
 		// Send the actual dimensions to the main process
-		ipc.send("terminal.resize", { cols: dims.cols, rows: dims.rows });
+		ipcRenderer.send("terminal.resize", { cols: dims.cols, rows: dims.rows });
 	}
 };
 
@@ -34,12 +34,12 @@ setTimeout(() => {
 	fitAndResize();
 }, 100);
 
-ipc.on("terminal.incomingData", (event, data) => {
+ipcRenderer.on("terminal.incomingData", (event, data) => {
 	term.write(data);
 });
 
 term.onData(e => {
-	ipc.send("terminal.keystroke", e);
+	ipcRenderer.send("terminal.keystroke", e);
 });
 
 window.addEventListener('resize', () => {
@@ -48,7 +48,7 @@ window.addEventListener('resize', () => {
 	}, 100);
 });
 
-ipc.on("terminal.forceResize", () => {
+ipcRenderer.on("terminal.forceResize", () => {
 	setTimeout(() => {
 		fitAndResize();
 	}, 10);
