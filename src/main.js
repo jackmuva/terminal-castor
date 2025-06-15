@@ -1,9 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const pty = require('@lydell/node-pty');
 const os = require("os");
+const { englishToCommand } = require('./ai/ai-cli-module.js');
 var shell = os.platform() === "win32" ? "powershell.exe" : "bash";
 
+/** @type {BrowserWindow} */
 let mainWindow = null;
+/** @type {import('@lydell/node-pty').IPty} */
 let ptyProcess = null;
 let currentCols = 80;
 let currentRows = 30;
@@ -72,7 +75,6 @@ const createWindow = () => {
 	})
 	mainWindow.loadFile('src/index.html')
 
-	// Create pty process
 	ptyProcess = pty.spawn(shell, [], {
 		name: "xterm-color",
 		cols: currentCols,
@@ -84,9 +86,17 @@ const createWindow = () => {
 	ptyProcess.onData((data) => {
 		if (mainWindow && !mainWindow.isDestroyed()) {
 			if (isBashError(data)) {
-				console.log('error', data);
+				ptyProcess.pause();
+				englishToCommand(data).then((res) => {
+					ptyProcess.resume();
+					if (res.command) {
+						ptyProcess.write(res.command)
+					}
+					mainWindow.webContents.send("ai.incomingData", res);
+				});
+			} else {
+				mainWindow.webContents.send("terminal.incomingData", data);
 			}
-			mainWindow.webContents.send("terminal.incomingData", data);
 		}
 
 	});

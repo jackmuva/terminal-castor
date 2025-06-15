@@ -1,8 +1,14 @@
 const { spawn } = require("child_process");
 require('dotenv').config();
 
+/**
+ * @typedef {Object} AiResponse
+ * @propery {string} explanation
+ * @propery {string} [command]
+ */
+
 /** @param {string} english */
-/** @returns {Promise<Object>} */
+/** @returns {Promise<AiResponse>} */
 function englishToCommand(english) {
 	return new Promise((resolve, reject) => {
 		fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${process.env.GEMINI_API_KEY}`, {
@@ -31,54 +37,12 @@ function englishToCommand(english) {
 			.then(request => request.json())
 			.then(response => {
 				const text = response.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
-				console.log(JSON.parse(text));
 				const aiResponse = JSON.parse(text);
 				resolve(aiResponse);
 			})
 			.catch(err => reject(err));
 	});
 }
-
-/**
-* @param {string} command
-* @returns {Promise<string>} Promise that resolves with the command output as string
-*/
-function runCliCommand(command) {
-	return new Promise((resolve, reject) => {
-		const cliCommand = spawn(command, { shell: true });
-
-		let outputBuffers = [];
-		let errorBuffers = [];
-
-		cliCommand.stdout.on("data", data => {
-			console.log(`stdout: ${data.toString()}`);
-			outputBuffers.push(data);
-		});
-
-		cliCommand.stderr.on("data", data => {
-			console.log(`stderr: ${data.toString()}`);
-			errorBuffers.push(data);
-		});
-
-		cliCommand.on('error', (error) => {
-			console.log(`error: ${error.message}`);
-			//reject(error);
-		});
-
-		cliCommand.on("close", code => {
-			console.log(`child process exited with code ${code}`);
-			if (code === 0) {
-				resolve(Buffer.concat(outputBuffers).toString());
-			} else {
-				const errorBuffer = Buffer.concat(errorBuffers);
-				resolve("[ERROR]" + errorBuffer.toString());
-				//reject(new Error(`Command failed with exit code ${code}\n${errorBuffer.toString()}`));
-			}
-		});
-	});
-}
-
 module.exports = {
-	runCliCommand: runCliCommand,
 	englishToCommand: englishToCommand
 };
