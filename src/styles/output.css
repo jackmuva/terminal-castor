@@ -169,9 +169,6 @@
   .flex {
     display: flex;
   }
-  .hidden {
-    display: none;
-  }
   .h-fit {
     height: fit-content;
   }
@@ -180,6 +177,9 @@
   }
   .min-h-6 {
     min-height: calc(var(--spacing) * 6);
+  }
+  .min-h-full {
+    min-height: 100%;
   }
   .min-h-screen {
     min-height: 100vh;
@@ -195,6 +195,12 @@
   }
   .max-w-full {
     max-width: 100%;
+  }
+  .min-w-full {
+    min-width: 100%;
+  }
+  .resize {
+    resize: both;
   }
   .resize-none {
     resize: none;

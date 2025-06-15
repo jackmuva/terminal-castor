@@ -4,25 +4,18 @@
 <head>
 	<meta charset="UTF-8" />
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+	<meta http-equiv="Content-Security-Policy"
+		content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
 	<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-	<link href="./output.css" rel="stylesheet">
-	<title>Terminal.x: delete this app when you're ready</title>
+	<link href="./styles/output.css" rel="stylesheet">
+	<link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css">
+	<title>terminal-castor: delete this app when you're ready</title>
 </head>
 
 <body>
 	<div class="bg-zinc-900 text-neutral-100 w-screen h-screen text-sm font-mono flex">
 		<div id="terminal-div" class="w-1/2 min-h-screen border-r border-teal-200 p-1 overflow-y-scroll">
-			<div id="history" class="flex flex-col h-fit w-full max-w-full wrap-break-word overflow-hidden">
-			</div>
-			<div class="flex space-x-2">
-				<p>$</p>
-				<textarea id="command"
-					placeholder="type a command - create a file, navigate to a directory, run a CLI command"
-					class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden
-						border-none outline-none bg-transparent text-neutral-100
-						caret-zinc-900"></textarea>
-			</div>
+			<div class="min-w-full min-h-full" id="terminal"> </div>
 		</div>
 		<div id="ai-div" class="w-1/2 min-h-screen p-1 overflow-y-scroll">
 			<div id="ai-explanation"
