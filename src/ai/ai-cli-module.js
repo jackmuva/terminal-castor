@@ -37,7 +37,6 @@ function englishToCommand(english) {
 			.then(request => request.json())
 			.then(response => {
 				const text = response.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
-				console.log(text);
 				const aiResponse = JSON.parse(text);
 				resolve(aiResponse);
 			})

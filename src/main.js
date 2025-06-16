@@ -8,14 +8,30 @@ var shell = os.platform() === "win32" ? "powershell.exe" : "bash";
 let mainWindow = null;
 /** @type {import('@lydell/node-pty').IPty} */
 let ptyProcess = null;
+/** @type {number} */
 let currentCols = 80;
+/** @type {number} */
 let currentRows = 30;
+/** @type {string} */
+let prevCommand = "";
+/** @type {string} */
+let curInput
 
 //NOTE: IPC handlers
 ipcMain.on("terminal.keystroke", (event, key) => {
-	if (ptyProcess) {
-		ptyProcess.write(key);
+	if (!ptyProcess) {
+		return;
+	} else if (key === '\r') {
+		prevCommand = curInput.trim();
+		curInput = '';
+	} else if (key === '\u007F') {//backspace
+		curInput = curInput.slice(0, -1);
+	} else {
+		curInput += key;
 	}
+
+	ptyProcess.write(key);
+
 });
 
 ipcMain.on("terminal.resize", (event, size) => {
@@ -86,10 +102,10 @@ const createWindow = () => {
 
 	ptyProcess.onData((data) => {
 		if (mainWindow && !mainWindow.isDestroyed()) {
+
 			if (isBashError(data)) {
 				ptyProcess.pause();
-				//FIX: i'm not sending the original command, just the error
-				englishToCommand(data).then((res) => {
+				englishToCommand(prevCommand).then((res) => {
 					ptyProcess.resume();
 					if (res.command) {
 						ptyProcess.write(res.command)
