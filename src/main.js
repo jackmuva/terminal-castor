@@ -12,20 +12,40 @@ let ptyProcess = null;
 let currentCols = 80;
 /** @type {number} */
 let currentRows = 30;
-/** @type {string} */
-let prevCommand = "";
+/** @type {List<string>} */
+let prevCommands = [];
+/** @type {number} */
+let prevPtr = 0;
 /** @type {string} */
 let curInput
 
 //NOTE: IPC handlers
+//HACK:this up and down arrow is not the best. there's a way to get the terminal buffer
+//from the xterm object; will want to use ipc
 ipcMain.on("terminal.keystroke", (event, key) => {
 	if (!ptyProcess) {
 		return;
 	} else if (key === '\r') {
-		prevCommand = curInput.trim();
+		prevCommands.push(curInput.trim());
 		curInput = '';
 	} else if (key === '\u007F') {//backspace
 		curInput = curInput.slice(0, -1);
+	} else if (key === '\u001b[A') {
+		prevPtr -= 1;
+		if ((-1 * prevPtr) > prevCommands.length) {
+			prevPtr = -1 * prevCommands.length;
+		}
+		curInput = prevCommands.at(prevPtr);
+		console.log(curInput);
+	} else if (key === '\u001b[B') {
+		prevPtr += 1;
+		if (prevPtr >= 0) {
+			prevPtr = 0;
+			curInput = curInput.replace('\u001b[B', '');
+		} else {
+			curInput = prevCommands.at(prevPtr);
+		}
+		console.log(curInput);
 	} else {
 		curInput += key;
 	}
@@ -115,10 +135,9 @@ const createWindow = () => {
 
 	ptyProcess.onData((data) => {
 		if (mainWindow && !mainWindow.isDestroyed()) {
-
 			if (isBashError(data)) {
 				ptyProcess.pause();
-				englishToCommand(prevCommand).then((res) => {
+				englishToCommand(prevCommands.at(-1)).then((res) => {
 					ptyProcess.resume();
 					if (res.command) {
 						ptyProcess.write(res.command)

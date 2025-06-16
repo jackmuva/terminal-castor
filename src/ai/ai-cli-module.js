@@ -11,6 +11,7 @@ require('dotenv').config();
 /** @returns {Promise<AiResponse>} */
 function englishToCommand(english) {
 	return new Promise((resolve, reject) => {
+		//console.log(english);
 		fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${process.env.GEMINI_API_KEY}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -24,7 +25,8 @@ function englishToCommand(english) {
 						so it can be easily parsed with JSON.parse()
 						2) If the user is asking a question, responses must be in a stringified json format:{ 
 						explanation: <answer to the question>}
-						3) Do not delete files or directories, or use any rm command; you can tell a user how to delete, but only explain`
+						3) All responses must either be in the json format from rule 1 or rule 2
+						4) Do not delete files or directories, or use any rm command; you can tell a user how to delete, but only explain`
 					}]
 				},
 				contents: [{
