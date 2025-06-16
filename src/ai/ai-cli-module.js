@@ -24,7 +24,7 @@ function englishToCommand(english) {
 						so it can be easily parsed with JSON.parse()
 						2) If the user is asking a question, responses must be in a stringified json format:{ 
 						explanation: <answer to the question>}
-						3) Do not delete files or directories, or use any rm command`
+						3) Do not delete files or directories, or use any rm command; you can tell a user how to delete, but only explain`
 					}]
 				},
 				contents: [{

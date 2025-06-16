@@ -7,12 +7,14 @@
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
-    --color-teal-200: oklch(91% 0.096 180.426);
     --color-zinc-900: oklch(21% 0.006 285.885);
     --color-neutral-100: oklch(97% 0 0);
     --spacing: 0.25rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
+    --text-base: 1rem;
+    --text-base--line-height: calc(1.5 / 1);
+    --font-weight-semibold: 600;
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
   }
@@ -228,16 +230,9 @@
   .overflow-y-scroll {
     overflow-y: scroll;
   }
-  .border-r {
-    border-right-style: var(--tw-border-style);
-    border-right-width: 1px;
-  }
   .border-none {
     --tw-border-style: none;
     border-style: none;
-  }
-  .border-teal-200 {
-    border-color: var(--color-teal-200);
   }
   .bg-transparent {
     background-color: transparent;
@@ -248,12 +243,16 @@
   .p-1 {
     padding: calc(var(--spacing) * 1);
   }
-  .font-mono {
-    font-family: var(--font-mono);
+  .font-\[Courier_New\] {
+    font-family: Courier New;
   }
   .text-sm {
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
+  }
+  .font-semibold {
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
   }
   .wrap-break-word {
     overflow-wrap: break-word;
@@ -279,17 +278,16 @@
   inherits: false;
   initial-value: 0;
 }
-@property --tw-border-style {
+@property --tw-font-weight {
   syntax: "*";
   inherits: false;
-  initial-value: solid;
 }
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
       --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
-      --tw-border-style: solid;
+      --tw-font-weight: initial;
     }
   }
 }

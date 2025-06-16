@@ -54,6 +54,8 @@ term.onData(e => {
 //NOTE: renderer hooks
 ipcRenderer.on("terminal.incomingData", (event, data) => {
 	term.write(data);
+	const terminalDiv = document.getElementById("terminal");
+	terminalDiv.scrollTop = terminalDiv.scrollHeight;
 });
 
 ipcRenderer.on("terminal.forceResize", () => {
@@ -68,4 +70,7 @@ ipcRenderer.on("ai.incomingData", (event, data) => {
 		aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>*</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${data.command}</div></div>`;
 	}
 	aiExplanation.innerHTML = aiExplanation.innerHTML + `<div class="flex space-x-2"><p>^</p><div class="resize-none w-full max-w-full wrap-break-word min-h-6 overflow-hidden border-none outline-none bg-transparent text-neutral-100 caret-zinc-900">${data.explanation}</div></div>`;
+
+	const aiDiv = document.getElementById("ai-div");
+	aiDiv.scrollTop = aiDiv.scrollHeight;
 });

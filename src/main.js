@@ -51,6 +51,18 @@ app.whenReady().then(() => {
 			createWindow()
 		}
 	})
+
+	setTimeout(() => {
+		const startupMessage = {
+			explanation: `try issuing a command like open x application, list files, go to a directory, or run x cli command)`
+		};
+		mainWindow.webContents.send("ai.incomingData", startupMessage);
+
+		const secondMessage = {
+			explanation: `or try asking a question on how to use the terminal`
+		};
+		mainWindow.webContents.send("ai.incomingData", secondMessage);
+	}, 100);
 })
 
 app.on('window-all-closed', () => {
@@ -68,13 +80,14 @@ app.on('window-all-closed', () => {
 const isBashError = (line) => {
 	const errorPatterns = [
 		/[^:]+: command not found/,
+		/[^:]+: unknown command/,
 		/.*: No such file or directory/,
 		/.*: does not exist/,
 		/.*: syntax error.*/i,
 		/.*: invalid option -- .*/i,
 		/.*: too many arguments/i,
 		/.*: missing operand/i,
-		/.*(failed|error|not found|not exist).*/i,
+		/.*(failed|error|not found|not exist|unknown).*/i,
 	];
 
 
