@@ -32,6 +32,14 @@ ipcMain.on("terminal.keystroke", (event, key) => {
 	ptyProcess.write(key);
 });
 
+ipcMain.on("terminal.arrowKeys", (event, line) => {
+	if (!ptyProcess) {
+		return;
+	} else {
+		curInput = line;
+	}
+});
+
 ipcMain.on("terminal.resize", (event, size) => {
 	if (ptyProcess && (size.cols !== currentCols || size.rows !== currentRows)) {
 		currentCols = size.cols;
