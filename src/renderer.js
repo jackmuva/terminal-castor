@@ -45,8 +45,17 @@ window.addEventListener('resize', () => {
 
 
 //NOTE: terminal hooks
-term.onData(e => {
-	ipcRenderer.send("terminal.keystroke", e);
+//TODO: KEEP WORKING ON THE UP AND DOWN FUNCTRIONALITY
+term.onData(key => {
+	if (key === '\u001b[A') { // up arrow
+		setTimeout(() => {
+			const line = term.buffer.active.getLine(term.buffer.active.cursorY).translateToString();
+			console.log(line);
+			//ipcRenderer.send("terminal.keystroke", line);
+		}, 50);
+	}
+	ipcRenderer.send("terminal.keystroke", key);
+
 });
 
 
