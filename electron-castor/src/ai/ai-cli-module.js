@@ -11,7 +11,7 @@ require('dotenv').config();
 /** @returns {Promise<AiResponse>} */
 function englishToCommand(english) {
 	return new Promise((resolve, reject) => {
-		fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+		fetch(process.env.CF_API + "/api/chat", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -33,22 +33,43 @@ function englishToCommand(english) {
 				}]
 			})
 		})
-			.then(request => request.json())
 			.then(response => {
-				const text = response.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
-				const aiResponse = JSON.parse(text);
+				if (!response.ok) {
+					throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+				}
+				return response.json();
+			})
+			.then(responseData => {
+				if (!responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+					throw new Error('Invalid API response structure');
+				}
+
+				const text = responseData.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
+
+				let aiResponse;
+				try {
+					aiResponse = JSON.parse(text);
+				} catch (parseError) {
+					throw new Error(`Failed to parse AI response as JSON: ${parseError.message}. Response text: ${text}`);
+				}
+
+				// If CLI tool is needed, get additional context
 				if (aiResponse.cli_tool) {
 					console.log("using tool on", aiResponse.cli_tool);
 					listCommandToolCall(english, aiResponse.cli_tool)
 						.then(ragResponse => {
 							resolve(ragResponse);
 						})
-						.catch(err => reject(err));
+						.catch(err => {
+							reject(new Error(`listCommandToolCall failed: ${err.message}`));
+						});
 				} else {
 					resolve(aiResponse);
 				}
 			})
-			.catch(err => reject(err));
+			.catch(err => {
+				reject(new Error(`englishToCommand failed: ${err.message}`));
+			});
 	});
 }
 
@@ -78,6 +99,7 @@ async function listHelp(cliToolName) {
 		helpCommand.on("error", (error) => {
 			reject(error);
 		});
+
 	});
 }
 
@@ -85,13 +107,13 @@ async function listHelp(cliToolName) {
 /** 
 * @param {string} english 
 * @param {string} cliToolName 
-* @returns {Promise<string>}
+* @returns {Promise<AiResponse>}
 */
 async function listCommandToolCall(english, cliToolName) {
 	return listHelp(cliToolName)
 		.then((cliToolContext) => {
 			return new Promise((resolve, reject) => {
-				fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+				fetch(process.env.CF_API + "/api/chat", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
@@ -121,19 +143,37 @@ async function listCommandToolCall(english, cliToolName) {
 						]
 					})
 				})
-					.then(request => request.json())
 					.then(response => {
-						const text = response.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
-						const aiResponse = JSON.parse(text);
-						resolve(aiResponse);
+						if (!response.ok) {
+							reject(new Error(`API request failed with status ${response.status}: ${response.statusText}`));
+						} else {
+							return response.json();
+						}
 					})
-					.catch(err => reject(err));
+					.then(responseData => {
+						if (!responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+							reject(new Error('Invalid API response structure'));
+						}
+
+						const text = responseData.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
+
+						try {
+							const aiResponse = JSON.parse(text);
+							resolve(aiResponse);
+						} catch (parseError) {
+							reject(new Error(`Failed to parse AI response as JSON: ${parseError.message}. Response text: ${text}`));
+						}
+					})
+					.catch(err => {
+						console.error("Error in listCommandToolCall:", err);
+						reject(new Error(`listCommandToolCall failed: ${err.message}`));
+					});
 			});
 		})
 		.catch(err => {
 			console.error("Error in listCommandToolCall:", err);
-			throw err; // Re-throw the error so it can be handled by the caller
-		});
+			reject(new Error(`listCommandToolCall failed: ${err.message}`));
+		});;
 }
 
 module.exports = {
