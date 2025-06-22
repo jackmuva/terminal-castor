@@ -16,6 +16,8 @@ let currentRows = 30;
 let prevCommands = [];
 /** @type {string} */
 let curInput
+/** @type {boolean} */
+let isProcessingAiCommand = false;
 
 //NOTE: IPC handlers
 ipcMain.on("terminal.keystroke", (event, key) => {
@@ -121,15 +123,27 @@ const createWindow = () => {
 
 	ptyProcess.onData((data) => {
 		if (mainWindow && !mainWindow.isDestroyed()) {
-			if (isBashError(data)) {
+			if (isBashError(data) && !isProcessingAiCommand) {
+				isProcessingAiCommand = true;
 				ptyProcess.pause();
-				englishToCommand(prevCommands.at(-1)).then((res) => {
-					ptyProcess.resume();
-					if (res.command) {
-						ptyProcess.write(res.command)
-					}
-					mainWindow.webContents.send("ai.incomingData", res);
-				});
+				englishToCommand(prevCommands.at(-1))
+					.then((res) => {
+						ptyProcess.resume();
+						if (res.command) {
+							ptyProcess.write(res.command)
+						}
+						mainWindow.webContents.send("ai.incomingData", res);
+					})
+					.catch(err => {
+						console.log(`Error in main process: ${err}`);
+						ptyProcess.resume(); // Make sure to resume even on error
+					})
+					.finally(() => {
+						// Reset the flag after a delay to prevent immediate re-triggering
+						setTimeout(() => {
+							isProcessingAiCommand = false;
+						}, 1000);
+					});
 			} else {
 				mainWindow.webContents.send("terminal.incomingData", data);
 			}
