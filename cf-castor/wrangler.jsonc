@@ -2,7 +2,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "cf-castor",
   "main": "src/index.ts",
-  "compatibility_date": "2025-06-22"
+  "compatibility_date": "2025-06-22",
+  "vars": {
+    "GEMINI_API_KEY": "replace",
+  },
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
