@@ -19,7 +19,7 @@ app.post('/api/chat', async (c) => {
     headers: { "Content-Type": "application/json" },
   });
   const response = await request.json();
-  return c.json(response);
+  return c.json(response as object);
 })
 
 export default app
