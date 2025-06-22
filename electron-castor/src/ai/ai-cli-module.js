@@ -33,22 +33,44 @@ function englishToCommand(english) {
 				}]
 			})
 		})
-			.then(request => request.json())
 			.then(response => {
-				const text = response.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
-				const aiResponse = JSON.parse(text);
+				if (!response.ok) {
+					throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+				}
+				return response.json();
+			})
+			.then(responseData => {
+				// Validate response structure
+				if (!responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+					throw new Error('Invalid API response structure');
+				}
+
+				const text = responseData.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
+				
+				let aiResponse;
+				try {
+					aiResponse = JSON.parse(text);
+				} catch (parseError) {
+					throw new Error(`Failed to parse AI response as JSON: ${parseError.message}. Response text: ${text}`);
+				}
+
+				// If CLI tool is needed, get additional context
 				if (aiResponse.cli_tool) {
 					console.log("using tool on", aiResponse.cli_tool);
 					listCommandToolCall(english, aiResponse.cli_tool)
 						.then(ragResponse => {
 							resolve(ragResponse);
 						})
-						.catch(err => reject(err));
+						.catch(err => {
+							reject(new Error(`listCommandToolCall failed: ${err.message}`));
+						});
 				} else {
 					resolve(aiResponse);
 				}
 			})
-			.catch(err => reject(err));
+			.catch(err => {
+				reject(new Error(`englishToCommand failed: ${err.message}`));
+			});
 	});
 }
 
@@ -78,6 +100,15 @@ async function listHelp(cliToolName) {
 		helpCommand.on("error", (error) => {
 			reject(error);
 		});
+
+		// Add timeout to prevent hanging
+		setTimeout(() => {
+			if (!resolved) {
+				resolved = true;
+				helpCommand.kill();
+				reject(new Error(`Help command timed out for ${cliToolName}`));
+			}
+		}, 10000); // 10 second timeout
 	});
 }
 
@@ -85,7 +116,7 @@ async function listHelp(cliToolName) {
 /** 
 * @param {string} english 
 * @param {string} cliToolName 
-* @returns {Promise<string>}
+* @returns {Promise<AiResponse>}
 */
 async function listCommandToolCall(english, cliToolName) {
 	return listHelp(cliToolName)
@@ -120,20 +151,34 @@ async function listCommandToolCall(english, cliToolName) {
 							}
 						]
 					})
-				})
-					.then(request => request.json())
-					.then(response => {
-						const text = response.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
-						const aiResponse = JSON.parse(text);
-						resolve(aiResponse);
-					})
-					.catch(err => reject(err));
+				});
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+				}
+				return response.json();
+			})
+			.then(responseData => {
+				// Validate response structure
+				if (!responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+					throw new Error('Invalid API response structure');
+				}
+
+				const text = responseData.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
+				
+				try {
+					const aiResponse = JSON.parse(text);
+					resolve(aiResponse);
+				} catch (parseError) {
+					reject(new Error(`Failed to parse AI response as JSON: ${parseError.message}. Response text: ${text}`));
+				}
+			})
+			.catch(err => {
+				console.error("Error in listCommandToolCall:", err);
+				reject(new Error(`listCommandToolCall failed: ${err.message}`));
 			});
-		})
-		.catch(err => {
-			console.error("Error in listCommandToolCall:", err);
-			throw err; // Re-throw the error so it can be handled by the caller
-		});
+	});
 }
 
 module.exports = {
