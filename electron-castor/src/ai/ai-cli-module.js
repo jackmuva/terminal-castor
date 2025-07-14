@@ -32,44 +32,41 @@ function englishToCommand(english) {
 					}]
 				}]
 			})
-		})
-			.then(response => {
-				if (!response.ok) {
-					throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
-				}
-				return response.json();
-			})
-			.then(responseData => {
-				if (!responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
-					throw new Error('Invalid API response structure');
-				}
+		}).then(response => {
+			if (!response.ok) {
+				throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+			}
+			return response.json();
+		}).then(responseData => {
+			if (!responseData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+				throw new Error('Invalid API response structure');
+			}
 
-				const text = responseData.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
+			const text = responseData.candidates[0].content.parts[0].text.replaceAll("`", "").replace("json", "");
 
-				let aiResponse;
-				try {
-					aiResponse = JSON.parse(text);
-				} catch (parseError) {
-					throw new Error(`Failed to parse AI response as JSON: ${parseError.message}. Response text: ${text}`);
-				}
+			let aiResponse;
+			try {
+				aiResponse = JSON.parse(text);
+			} catch (parseError) {
+				throw new Error(`Failed to parse AI response as JSON: ${parseError.message}. Response text: ${text}`);
+			}
 
-				// If CLI tool is needed, get additional context
-				if (aiResponse.cli_tool) {
-					console.log("using tool on", aiResponse.cli_tool);
-					listCommandToolCall(english, aiResponse.cli_tool)
-						.then(ragResponse => {
-							resolve(ragResponse);
-						})
-						.catch(err => {
-							reject(new Error(`listCommandToolCall failed: ${err.message}`));
-						});
-				} else {
-					resolve(aiResponse);
-				}
-			})
-			.catch(err => {
-				reject(new Error(`englishToCommand failed: ${err.message}`));
-			});
+			// If CLI tool is needed, get additional context
+			if (aiResponse.cli_tool) {
+				console.log("using tool on", aiResponse.cli_tool);
+				listCommandToolCall(english, aiResponse.cli_tool)
+					.then(ragResponse => {
+						resolve(ragResponse);
+					})
+					.catch(err => {
+						reject(new Error(`listCommandToolCall failed: ${err.message}`));
+					});
+			} else {
+				resolve(aiResponse);
+			}
+		}).catch(err => {
+			reject(new Error(`englishToCommand failed: ${err.message}`));
+		});
 	});
 }
 
